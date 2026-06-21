@@ -15,7 +15,7 @@ jobs:
 
       - name: Apply KernelSU-Next + SUSFS patch
         run: |
-          git apply sukisu_susfs_ginkgo_android13.patch
+         git apply sukisu_susfs_ginkgo_fifteen_fix.patch
           echo "--- Conferindo se aplicou certo ---"
           grep -E "CONFIG_KSU=y|CONFIG_KSU_SUSFS=y" arch/arm64/configs/vendor/ginkgo-perf_defconfig
 
