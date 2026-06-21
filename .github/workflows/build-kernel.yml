@@ -1,0 +1,47 @@
+name: Build ginkgo kernel (KernelSU-Next + SUSFS)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout kernel source
+        uses: actions/checkout@v4
+        with:
+          ref: fifteen
+          fetch-depth: 1
+
+      - name: Apply KernelSU-Next + SUSFS patch
+        run: |
+          git apply sukisu_susfs_ginkgo_android13.patch
+          echo "--- Conferindo se aplicou certo ---"
+          grep -E "CONFIG_KSU=y|CONFIG_KSU_SUSFS=y" arch/arm64/configs/vendor/ginkgo-perf_defconfig
+
+      - name: Install build dependencies
+        run: |
+          sudo -E apt-get -qq update
+          sudo -E apt-get -qq install -y bc python2 python3 python-is-python3
+
+      - name: Build kernel
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Locate output zip
+        id: find_zip
+        run: |
+          ZIP=$(find . -maxdepth 1 -iname "*.zip" | head -n1)
+          if [ -z "$ZIP" ]; then
+            echo "Nenhum zip encontrado, build provavelmente falhou."
+            exit 1
+          fi
+          echo "zip_path=$ZIP" >> "$GITHUB_OUTPUT"
+
+      - name: Upload kernel zip as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ginkgo-kernelsu-next-susfs
+          path: ${{ steps.find_zip.outputs.zip_path }}
+          retention-days: 14
