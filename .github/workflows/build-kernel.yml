@@ -15,7 +15,7 @@ jobs:
 
       - name: Apply KernelSU-Next + SUSFS patch
         run: |
-         git apply kernelsu_no_fshooks.patch
+         git apply kernelsu_susfs_no_fshooks_v8.patch
           echo "--- Conferindo se aplicou certo ---"
           grep -E "CONFIG_KSU=y|CONFIG_KSU_SUSFS=y" arch/arm64/configs/vendor/ginkgo-perf_defconfig
 
